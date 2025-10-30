@@ -14,7 +14,7 @@ export const AIInsights = ({ insights, isLoading }: AIInsightsProps) => {
           <div className="p-3 rounded-lg" style={{ background: "var(--gradient-primary)" }}>
             <Sparkles className="w-6 h-6 text-white animate-spin" />
           </div>
-          <h3 className="text-xl font-semibold">Gerando Insights com IA...</h3>
+          <h3 className="text-xl font-semibold">Gerando Insights...</h3>
         </div>
         <div className="space-y-3">
           <div className="h-4 bg-muted rounded w-full" />
