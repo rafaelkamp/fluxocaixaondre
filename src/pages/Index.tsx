@@ -143,7 +143,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="border-t border-border bg-card/30 backdrop-blur-sm mt-20">
         <div className="container mx-auto px-6 py-8 text-center text-sm text-muted-foreground">
-          <p>Desenvolvido com inteligência artificial • Análise financeira profissional</p>
+          <p>Desenvolvido por Rafael Fortkamp • Análise financeira profissional</p>
         </div>
       </footer>
     </div>
