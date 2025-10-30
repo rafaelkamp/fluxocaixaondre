@@ -38,7 +38,7 @@ const Index = () => {
 
   const generateInsights = async (data: CashflowData[], fileName: string) => {
     setIsAnalyzing(true);
-    toast.loading("Gerando insights com IA...");
+    toast.loading("Gerando insights...");
 
     try {
       const { data: result, error } = await supabase.functions.invoke("analyze-cashflow", {
@@ -89,7 +89,7 @@ const Index = () => {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                   Análise de Fluxo de Caixa
                 </h1>
-                <p className="text-sm text-muted-foreground">Insights inteligentes com IA</p>
+                <p className="text-sm text-muted-foreground">Insights inteligentes </p>
               </div>
             </div>
             {cashflowData.length > 0 && (
