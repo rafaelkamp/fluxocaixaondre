@@ -115,7 +115,8 @@ const Index = () => {
               <h2 className="text-4xl font-bold">Transforme dados em decisões</h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Envie seu arquivo Excel de fluxo de caixa e receba uma análise completa com gráficos
-                interativos e insights gerados por inteligência artificial.
+                interativos e insights gerados por inteligência artificial. Inclui análise de receitas,
+                despesas e movimentações da tesouraria (OUTROS).
               </p>
             </div>
             <FileUpload onFileSelect={handleFileSelect} isLoading={isLoading} />

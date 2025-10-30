@@ -4,6 +4,7 @@ export interface CashflowData {
   Mês: string;
   Receitas: number;
   Despesas: number;
+  Outros: number;
   Saldo: number;
 }
 
@@ -25,9 +26,10 @@ export const parseExcelFile = async (file: File): Promise<CashflowData[]> => {
         // Find the data structure - more flexible search
         let receivedIndex = -1;
         let expensesIndex = -1;
+        let outrosIndex = -1;
         let monthsStartCol = -1;
 
-        // Find RECEITAS and DESPESAS rows (search all columns in each row)
+        // Find RECEITAS, DESPESAS, and OUTROS rows (search all columns in each row)
         for (let i = 0; i < jsonData.length; i++) {
           const row = jsonData[i];
           if (!row || row.length === 0) continue;
@@ -44,6 +46,10 @@ export const parseExcelFile = async (file: File): Promise<CashflowData[]> => {
               expensesIndex = i;
               console.log("Found DESPESAS at row:", i);
             }
+            if (cell === "OUTROS" && outrosIndex === -1) {
+              outrosIndex = i;
+              console.log("Found OUTROS at row:", i);
+            }
             
             // Find first month column
             if (monthsStartCol === -1 && (cell.includes("/2025") || cell.includes("/2024"))) {
@@ -53,7 +59,7 @@ export const parseExcelFile = async (file: File): Promise<CashflowData[]> => {
           }
         }
 
-        console.log("Indices found:", { receivedIndex, expensesIndex, monthsStartCol });
+        console.log("Indices found:", { receivedIndex, expensesIndex, outrosIndex, monthsStartCol });
 
         if (receivedIndex === -1 || expensesIndex === -1) {
           console.error("Could not find RECEITAS or DESPESAS rows");
@@ -90,12 +96,16 @@ export const parseExcelFile = async (file: File): Promise<CashflowData[]> => {
 
           const receita = parseValue(jsonData[receivedIndex][j]);
           const despesa = parseValue(jsonData[expensesIndex][j]);
-          const saldo = receita - despesa;
+          const outros = outrosIndex !== -1 ? parseValue(jsonData[outrosIndex][j]) : 0;
+          
+          // Saldo = Receitas - Despesas + Outros (OUTROS podem ser positivos ou negativos)
+          const saldo = receita - despesa + outros;
 
           result.push({
             Mês: monthCell,
             Receitas: receita,
             Despesas: despesa,
+            Outros: outros,
             Saldo: saldo,
           });
         }

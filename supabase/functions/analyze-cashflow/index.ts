@@ -26,14 +26,22 @@ Análise de Fluxo de Caixa - ${fileName}
 Dados resumidos:
 ${JSON.stringify(data, null, 2)}
 
-Por favor, analise estes dados financeiros e forneça:
-1. Principais tendências observadas nas receitas e despesas
-2. Pontos de atenção ou alertas importantes
-3. Oportunidades de otimização identificadas
-4. Projeções e recomendações estratégicas
-5. Análise de sazonalidade, se aplicável
+IMPORTANTE: O fluxo de caixa contém três componentes principais:
+1. RECEITAS - Valores recebidos através de contas a receber
+2. DESPESAS - Valores pagos através de contas a pagar  
+3. OUTROS - Movimentações da tesouraria (tarifas bancárias, rendimentos de aplicações, IOF, etc.)
 
-Seja específico, use números dos dados quando relevante, e forneça insights acionáveis.
+FÓRMULA DO FLUXO LÍQUIDO: Saldo = Receitas - Despesas + Outros
+
+Por favor, analise estes dados financeiros e forneça:
+1. Principais tendências observadas nas receitas, despesas e movimentações da tesouraria (OUTROS)
+2. Análise específica sobre os itens em OUTROS - identificar principais fontes de receitas/despesas da tesouraria
+3. Pontos de atenção ou alertas importantes considerando o impacto de OUTROS no fluxo líquido
+4. Oportunidades de otimização identificadas (incluindo gestão da tesouraria)
+5. Projeções e recomendações estratégicas
+6. Análise de sazonalidade, se aplicável
+
+Seja específico, use números dos dados quando relevante, e forneça insights acionáveis sobre todos os componentes do fluxo.
 `;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
