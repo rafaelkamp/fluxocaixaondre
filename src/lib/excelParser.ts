@@ -19,53 +19,96 @@ export const parseExcelFile = async (file: File): Promise<CashflowData[]> => {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 }) as any[][];
 
-        // Find the data structure
+        console.log("Total rows in Excel:", jsonData.length);
+        console.log("First 5 rows:", jsonData.slice(0, 5));
+
+        // Find the data structure - more flexible search
         let receivedIndex = -1;
         let expensesIndex = -1;
         let monthsStartCol = -1;
 
-        // Find RECEITAS and DESPESAS rows
+        // Find RECEITAS and DESPESAS rows (search all columns in each row)
         for (let i = 0; i < jsonData.length; i++) {
           const row = jsonData[i];
+          if (!row || row.length === 0) continue;
+
+          // Check each cell in the row
           for (let j = 0; j < row.length; j++) {
-            const cell = String(row[j] || "").toUpperCase();
-            if (cell === "RECEITAS") receivedIndex = i;
-            if (cell === "DESPESAS") expensesIndex = i;
-            if (cell.includes("/2025") && monthsStartCol === -1) monthsStartCol = j;
+            const cell = String(row[j] || "").trim().toUpperCase();
+            
+            if (cell === "RECEITAS" && receivedIndex === -1) {
+              receivedIndex = i;
+              console.log("Found RECEITAS at row:", i);
+            }
+            if (cell === "DESPESAS" && expensesIndex === -1) {
+              expensesIndex = i;
+              console.log("Found DESPESAS at row:", i);
+            }
+            
+            // Find first month column
+            if (monthsStartCol === -1 && (cell.includes("/2025") || cell.includes("/2024"))) {
+              monthsStartCol = j;
+              console.log("Found months starting at column:", j);
+            }
           }
         }
 
-        if (receivedIndex === -1 || expensesIndex === -1 || monthsStartCol === -1) {
+        console.log("Indices found:", { receivedIndex, expensesIndex, monthsStartCol });
+
+        if (receivedIndex === -1 || expensesIndex === -1) {
+          console.error("Could not find RECEITAS or DESPESAS rows");
+          console.log("Sample data:", jsonData.slice(0, 20).map((row, i) => `Row ${i}: ${JSON.stringify(row)}`));
           throw new Error("Estrutura de dados não reconhecida. Certifique-se de que o arquivo contém linhas RECEITAS e DESPESAS.");
         }
 
-        // Extract months and data
+        if (monthsStartCol === -1) {
+          throw new Error("Não foi possível identificar as colunas de meses.");
+        }
+
+        // Extract months from the header row
         const monthsRow = jsonData.find((row) =>
-          row.some((cell) => String(cell || "").includes("/2025"))
+          row && row.some((cell) => {
+            const cellStr = String(cell || "").trim();
+            return cellStr.includes("/2025") || cellStr.includes("/2024");
+          })
         );
-        if (!monthsRow) throw new Error("Meses não encontrados no arquivo");
+        
+        if (!monthsRow) {
+          throw new Error("Meses não encontrados no arquivo");
+        }
 
         const result: CashflowData[] = [];
-        const months = monthsRow.slice(monthsStartCol).filter((m) => m);
+        
+        // Get all month columns
+        for (let j = monthsStartCol; j < monthsRow.length; j++) {
+          const monthCell = String(monthsRow[j] || "").trim();
+          if (!monthCell || (!monthCell.includes("/2025") && !monthCell.includes("/2024"))) {
+            // Stop when we hit a non-month column
+            if (result.length > 0) break;
+            continue;
+          }
 
-        for (let i = 0; i < months.length; i++) {
-          const colIndex = monthsStartCol + i;
-          const month = String(months[i]);
-          
-          const receita = parseValue(jsonData[receivedIndex][colIndex]);
-          const despesa = parseValue(jsonData[expensesIndex][colIndex]);
+          const receita = parseValue(jsonData[receivedIndex][j]);
+          const despesa = parseValue(jsonData[expensesIndex][j]);
           const saldo = receita - despesa;
 
           result.push({
-            Mês: month,
+            Mês: monthCell,
             Receitas: receita,
             Despesas: despesa,
             Saldo: saldo,
           });
         }
 
+        console.log("Parsed data:", result);
+
+        if (result.length === 0) {
+          throw new Error("Nenhum dado foi extraído do arquivo.");
+        }
+
         resolve(result);
       } catch (error) {
+        console.error("Error parsing Excel:", error);
         reject(error);
       }
     };
