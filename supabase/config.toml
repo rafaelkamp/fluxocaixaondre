@@ -1,0 +1,4 @@
+project_id = "tcbankedqhklwocvtgsy"
+
+[functions.analyze-cashflow]
+verify_jwt = false
